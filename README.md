@@ -2,7 +2,7 @@ Icarus Exercise
 ===================
 **Google Summer of Code 2016**
 
-**Konstantinos Kousidis** <dinos.kousidis@tum.de>
+**Dinos Kousidis** <dinos.kousidis@tum.de>
 
 **Technische Universitaet Muenchen**
 

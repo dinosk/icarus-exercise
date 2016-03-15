@@ -4,7 +4,7 @@ import BlackBody
 import IPython
 import matplotlib.pyplot as plt
 import numpy as np
-
+import random
 
 class Gui(Tkinter.Tk):
     def __init__(self,parent):
@@ -79,7 +79,7 @@ class Gui(Tkinter.Tk):
         temp_button.grid(column=0, row=1)        
 
         # Plot button
-        filename_button = Tkinter.Button(self, text=u"Plot", command=self.show_plot)
+        filename_button = Tkinter.Button(self, text=u"Plot", command=self.save_plot)
         filename_button.grid(column=0, row=4)
 
         # Feedback field
@@ -151,10 +151,10 @@ class Gui(Tkinter.Tk):
         ax = fig.add_subplot(111)
         adjustprops = dict(left=0.19,bottom=0.15,right=0.92,top=0.9,wspace=0.,hspace=0.2)
         fig.subplots_adjust(**adjustprops)
+
         # Setting the labels for the X and Y axis
         ax.set_xlabel(r'$Wavelength \, [nm]$', size=15, labelpad=20)
         ax.set_ylabel(r'$Flux \, [\mathrm{erg\, m^{-2}\, nm^{-1}\, s^{-1}}]$', size=15)
-        # plt.ticklabel_format(style="sci",scilimits=(2,2),axis="y")
 
         ax.minorticks_on()
         ax.grid()
@@ -162,14 +162,14 @@ class Gui(Tkinter.Tk):
         # We will create the plot for wavelengths of 1nm up to 1um
         wavelength = np.arange(1e-9, 1e-6, 1e-9)
         # print wavelength
-        spectrums = []
+
+        #legend_lines = []
         for bb in self.bbs:
-            spectrums.append(bb.radiation(wavelength))
+            #legend_lines.append( ax.plot(wavelength*10**9, bb.radiation(wavelength), color="red", linewidth=3, linestyle="-", label=bb.T) )
+            ax.plot(wavelength*10**9, bb.radiation(wavelength), color=np.random.rand(3,1), linewidth=3, linestyle="-", label=bb.T)
+        plt.legend()
 
-        for spectrum in spectrums:
-            ax.plot(wavelength*10**9, spectrum, color="red", linewidth=3, linestyle="-")
-
-        plt.title('Flux vs Wavelength of BlackBody.BlackBody at %s K' % self.temps)
+        plt.title('Flux vs Wavelength of BlackBody.BlackBody at %s K' % self.temps, y=1.04)
         fig.show()
         if output_file:
             plt.savefig(output_file)

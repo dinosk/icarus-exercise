@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--output-file", "-o", help="Specify an output file for plots")
 parser.add_argument("--temperature", "-t", help="Sets the temperature of the black body", type=int)
 parser.add_argument("--mag-only", action="store_true", help="Print the U, B, V, R, I magnitudes only")
+parser.add_argument("--no-gui", action="store_true", help="Disable the GUI")
 
 np.seterr(over='ignore')
 
@@ -132,7 +133,8 @@ class BlackBody(object):
 if __name__ == "__main__":
     """
     Sample main function.
-    Creates a black body with the gievn temperature and either
+    Spawns the GUI or if the --no-gui flag is passed
+    creates a black body with the given temperature and either
     prints the magnitudes or creates a plot.
 
     For example:
@@ -149,6 +151,20 @@ if __name__ == "__main__":
         # print "Temperature was not set, using default value 5778K"
         bb = BlackBody(5778)
 
+    if args.no_gui:
+    	if args.mag_only:
+    	    print "U:", bb.magnitude("u")
+    	    print "B:", bb.magnitude("b")
+    	    print "V:", bb.magnitude("v")
+    	    print "R:", bb.magnitude("r")
+    	    print "I:", bb.magnitude("i")
+    	    sys.exit()
+
+    	if args.output_file:
+    	    bb.show_plot(args.output_file)
+    	else:
+    	    bb.show_plot()
+    	sys.exit()
     app = Gui.Gui(None)
     app.title("Icarus Exercise")
     app.attributes('-topmost', 1)
@@ -156,15 +172,4 @@ if __name__ == "__main__":
     app.attributes('-topmost', 0)
     app.mainloop()
 
-    if args.mag_only:
-        print "U:", bb.magnitude("u")
-        print "B:", bb.magnitude("b")
-        print "V:", bb.magnitude("v")
-        print "R:", bb.magnitude("r")
-        print "I:", bb.magnitude("i")
-        sys.exit()
-
-    if args.output_file:
-        bb.show_plot(args.output_file)
-    else:
-        bb.show_plot()
+    
