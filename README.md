@@ -42,7 +42,7 @@ python BlackBody.py --no-gui -t 4000 -o fig4000.png
 The BlackBody class can calculate the radiation, observed flux and magnitude using the following formulas:
 
 $$
-B_Î»(Î», t) = \int_0^\infty   \frac{2\pi h c ^ 2}{Î»^5} * \frac{1}{e^\frac{hc}{Î»k_BT} - 1}
+B_\lambda(\lambda, t) = \int_0^\infty   \frac{2\pi h c ^ 2}{\lambda^5} * \frac{1}{e^\frac{hc}{\lambdak_BT} - 1}
 $$
 
 $$
@@ -53,3 +53,4 @@ $$
 m_V = m_{v,o} - 2.5 * log_{10} (\frac{\int_{Î»_{eff} - Î”_Î»/2}^{Î»_{eff} + Î”_Î»/2}  F(Î»)dÎ»}{Î»F_{v,0}})
 $$
 
+![B_\lambda(\lambda, t) = \int_0^\infty   \frac{2\pi h c ^ 2}{\lambda^5} * \frac{1}{e^\frac{hc}{\lambdak_BT} - 1}](http://www.sciweavers.org/tex2img.php?eq=1%2Bsin%28mc%5E2%29&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=)
