@@ -8,7 +8,7 @@ Icarus Exercise
 
 Hi! This is my exercise for my application for the __Lightcurve modeling with Icarus__ project.
 
-This python app can create a plot of Flux vs Wavelength for 1 or more black bodies of certain temperatures, and calculate their U, B, V, R magnitudes based on Î± Lyr Flux values taken from Bessell et al. (1998) Johnson-Cousins-Glass System.
+This python app can create a plot of Flux vs Wavelength for 1 or more black bodies of certain temperatures, and calculate their U, B, V, R magnitudes based on alpha Lyr Flux values taken from Bessell et al. (1998) Johnson-Cousins-Glass System.
 
 Project Description
 -------------
@@ -38,10 +38,14 @@ If you don't want to spawn the GUI and just run it from the command line pass:
 python BlackBody.py --no-gui -t 4000 -o fig4000.png
 ```
 
--t: sets the temperature and
- -o: specifies the output file
+-t: sets the temperature
+
+-o: specifies the output file
+
 -h: shows help text
+
 --no-gui: doesn't spawn the gui
+
 --mag-only: prints the U, B, V, R magnitudes
 
 #### Calculations
