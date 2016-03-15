@@ -41,4 +41,4 @@ python BlackBody.py --no-gui -t 4000 -o fig4000.png
 
 The BlackBody class can calculate the radiation, observed flux and magnitude using the following formulas:
 
-![alt tag](https://raw.githubusercontent.com/dinosk/icarus-exercise/master/equation.png)
+![alt tag](https://github.com/dinosk/icarus-exercise/blob/master/equation.png)
