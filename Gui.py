@@ -1,6 +1,9 @@
 import Tkinter
 import os
-from BlackBody import BlackBody
+import BlackBody
+import IPython
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Gui(Tkinter.Tk):
@@ -8,9 +11,15 @@ class Gui(Tkinter.Tk):
         Tkinter.Tk.__init__(self,parent)
         self.parent = parent
         self.initialize()
+        # list that will save the black bodies to plot
+        self.bbs = []
+        self.temps = ""
 
 
     def initialize(self):
+        """
+        Initialization of the GUI.
+        """
         self.grid()
 
         self.temp_text = Tkinter.StringVar()
@@ -20,6 +29,7 @@ class Gui(Tkinter.Tk):
         self.magnitude_V = Tkinter.StringVar()
         self.magnitude_R = Tkinter.StringVar()
 
+        # Temperature field and slider
         self.temp_label_text = Tkinter.StringVar()
         self.temp_label = Tkinter.Label(self, textvariable=self.temp_label_text, anchor="w")
         self.temp_label.grid(column=0, row=0, sticky='EW')
@@ -29,8 +39,8 @@ class Gui(Tkinter.Tk):
         self.temp_input = Tkinter.Entry(self, textvariable=self.temp_text)
         self.temp_input.grid(column=1, row=0, sticky='EW')
         self.temp_text.set(u"Enter Temperature in K")
-        #temp_button = Tkinter.Button(self, text=u"Set", command=self.set_temp)
-        #temp_button.grid(column=1, row=0)
+
+        # Save as field and button
         self.filename_label_text = Tkinter.StringVar()
         self.filename_label = Tkinter.Label(self, textvariable=self.filename_label_text, anchor="w")
         self.filename_label.grid(column=0, row=3, sticky='EW')
@@ -40,33 +50,44 @@ class Gui(Tkinter.Tk):
         self.filename_input.bind("<Return>", self.save_plot)
         self.filename_text.set(u"fig.png")
 
+        # Magnitude U: field
         self.magnitude_U_label = Tkinter.Label(self, textvariable=self.magnitude_U, anchor="w")
         self.magnitude_U_label.grid(column=5, row=0, sticky='EW')
         self.magnitude_U.set(u"U:")
 
+        # Magnitude B: field
         self.magnitude_B_label = Tkinter.Label(self, textvariable=self.magnitude_B, anchor="w")
         self.magnitude_B_label.grid(column=6, row=0, sticky='EW')
         self.magnitude_B.set(u"B:")
 
+        # Magnitude V: field
         self.magnitude_V_label = Tkinter.Label(self, textvariable=self.magnitude_V, anchor="w")
         self.magnitude_V_label.grid(column=5, row=1, sticky='EW')
         self.magnitude_V.set(u"V:")
 
+        # Magnitude R: field
         self.magnitude_R_label = Tkinter.Label(self, textvariable=self.magnitude_R, anchor="w")
         self.magnitude_R_label.grid(column=6, row=1, sticky='EW')        
         self.magnitude_R.set(u"R:")
 
+        # Magnitude I: field
         calc_mag_button = Tkinter.Button(self, text=u"Calculate Magnitudes", command=self.calc_mag)
         calc_mag_button.grid(column=6, row=4)
 
-        filename_button = Tkinter.Button(self, text=u"Plot", command=self.save_plot)
+        # Set temperature button
+        temp_button = Tkinter.Button(self, text=u"Set", command=self.set_temp)
+        temp_button.grid(column=0, row=1)        
+
+        # Plot button
+        filename_button = Tkinter.Button(self, text=u"Plot", command=self.show_plot)
         filename_button.grid(column=0, row=4)
 
+        # Feedback field
         self.feedback = Tkinter.StringVar()
         label = Tkinter.Label(self, textvariable=self.feedback,
                               anchor="w", fg="white", bg="blue")
         label.grid(column=0, row=6, columnspan=3, sticky='EW')
-        self.feedback.set(u"Please specify the Black Body temperature and set a filename for the plot!")
+        self.feedback.set(u"To create a plot: specify temperature(s) press set and press plot")
 
         self.grid_columnconfigure(0, weight=1)
         self.resizable(True,False)
@@ -75,41 +96,81 @@ class Gui(Tkinter.Tk):
 
     
     def set_temp(self):
-        self.feedback.set("Plot black body with temperature: "+self.temp_text.get()+"K")
-        # self.temp_input.focus_set()
-        # self.temp_input.selection_range(0, Tkinter.END)
-        self.temp_slider.set(int(self.temp_text.get()))
+        """
+        Add the black body with the given temperature to the array with
+        black bodies to plot.
+        """
+        try:
+            newtemp = int(self.temp_text.get())
+            if newtemp < 0:
+                raise ValueError
+            self.temp_slider.set(int(self.temp_text.get()))
+        except ValueError:
+            self.feedback.set("Please enter a positive integer value")
+            return
+        self.temps += self.temp_text.get()+" "
+        self.feedback.set("Plot Flux vs Wavelength of: %sK" % self.temps)
+        bb = BlackBody.BlackBody(newtemp)
+        self.bbs.append(bb)
 
     
     def set_temp_slider(self, event):
-        self.bb = BlackBody(int(event))
-        self.feedback.set("Plot black body with temperature: "+event+"K")
+        """
+        What happens if you move the slider.
+        """
         self.temp_text.set(event)
-        self.temp_input.focus_set()
-        self.temp_input.selection_range(0, Tkinter.END)
 
 
     def calc_mag(self):
-    	if self.bb is None:
+        """
+        What happens if you press the Calculate Magnitudes button.
+        """
+    	if self.temp_text.get() is None:
     		self.feedback.set(u"First must set a temperature!")
-    	self.magnitude_U.set(u"U: %f" % self.bb.magnitude("u"))
-    	self.magnitude_B.set(u"B: %f" % self.bb.magnitude("b"))
-    	self.magnitude_V.set(u"V: %f" % self.bb.magnitude("v"))
-    	self.magnitude_R.set(u"R: %f" % self.bb.magnitude("r"))
+        bb = BlackBody.BlackBody(int(self.temp_text.get()))
+    	self.magnitude_U.set(u"U: %f" % bb.magnitude("u"))
+    	self.magnitude_B.set(u"B: %f" % bb.magnitude("b"))
+    	self.magnitude_V.set(u"V: %f" % bb.magnitude("v"))
+    	self.magnitude_R.set(u"R: %f" % bb.magnitude("r"))
 
 
     def save_plot(self):
-    	self.set_temp()
-    	self.bb = BlackBody(int(self.temp_text.get()))
-        self.bb.show_plot(self.filename_text.get())
+        """
+        What happens if you press the Plot button.
+        """
+    	self.show_plot(self.filename_text.get())
         self.feedback.set("Plot saved in: "+os.getcwd()+"/"+self.filename_text.get())
-        self.temp_input.focus_set()
-        self.temp_input.selection_range(0, Tkinter.END)
 
 
-    def on_enter(self, event):
-        self.feedback.set(self.entryVariable.get() + "You pressed enter !")
-        self.temp_input.focus_set()
-        self.temp_input.selection_range(0, Tkinter.END)
-        print event
-        # IPython.embed()
+    def show_plot(self, output_file=None):
+        """
+        Creates the plot of the black body or multiple black bodies.
+        Saves it under the specified name.
+        """
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        adjustprops = dict(left=0.19,bottom=0.15,right=0.92,top=0.9,wspace=0.,hspace=0.2)
+        fig.subplots_adjust(**adjustprops)
+        # Setting the labels for the X and Y axis
+        ax.set_xlabel(r'$Wavelength \, [nm]$', size=15, labelpad=20)
+        ax.set_ylabel(r'$Flux \, [\mathrm{erg\, m^{-2}\, nm^{-1}\, s^{-1}}]$', size=15)
+        # plt.ticklabel_format(style="sci",scilimits=(2,2),axis="y")
+
+        ax.minorticks_on()
+        ax.grid()
+
+        # We will create the plot for wavelengths of 1nm up to 1um
+        wavelength = np.arange(1e-9, 1e-6, 1e-9)
+        # print wavelength
+        spectrums = []
+        for bb in self.bbs:
+            spectrums.append(bb.radiation(wavelength))
+
+        for spectrum in spectrums:
+            ax.plot(wavelength*10**9, spectrum, color="red", linewidth=3, linestyle="-")
+
+        plt.title('Flux vs Wavelength of BlackBody.BlackBody at %s K' % self.temps)
+        fig.show()
+        if output_file:
+            plt.savefig(output_file)
+
