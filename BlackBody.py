@@ -94,10 +94,11 @@ class BlackBody(object):
 
         Integrates with the quad method from scipy.
         """
-        m_x = -2.5 * np.log10( quad(self.obs_flux,
-								 	self.ref_data["lambda_eff"][band] - self.ref_data["delta_lambda"][band]/2,
-					 			    self.ref_data["lambda_eff"][band] + self.ref_data["delta_lambda"][band]/2)[0]
-									/ self.ref_data["f_lambda_0"][band] )
+        # m_x = -2.5 * np.log10( quad(self.obs_flux,
+		# 						 	self.ref_data["lambda_eff"][band] - self.ref_data["delta_lambda"][band]/2,
+		#			 			    self.ref_data["lambda_eff"][band] + self.ref_data["delta_lambda"][band]/2)[0]
+		#							/ self.ref_data["f_lambda_0"][band] )
+        m_x = -2.5 * np.log10( self.obs_flux(self.ref_data["lambda_eff"][band]) / self.ref_data["f_lambda_0"][band] )
         return m_x
 
     def show_plot(self, output_file=None):
@@ -127,7 +128,7 @@ class BlackBody(object):
         plt.title('Flux vs Wavelength of BlackBody at %d K' % self.T.value)
         fig.show()
         if output_file:
-            plt.savefig(output_file)
+            plt.savefig("plots/"+output_file)
 
 
 if __name__ == "__main__":

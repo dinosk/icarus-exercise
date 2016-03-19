@@ -140,6 +140,7 @@ class Gui(Tkinter.Tk):
         """
     	self.show_plot(self.filename_text.get())
         self.feedback.set("Plot saved in: "+os.getcwd()+"/"+self.filename_text.get())
+        self.bbs = []
 
 
     def show_plot(self, output_file=None):
@@ -172,5 +173,5 @@ class Gui(Tkinter.Tk):
         plt.title('Flux vs Wavelength of BlackBody.BlackBody at %s K' % self.temps, y=1.04)
         fig.show()
         if output_file:
-            plt.savefig(output_file)
+            plt.savefig("plots/"+output_file)
 
