@@ -6,7 +6,7 @@ Icarus Exercise
 
 **Technische Universitaet Muenchen**
 
-Hi! This is my exercise for my application for the __Lightcurve modeling with Icarus__ project.
+This is my exercise for my application for the __Lightcurve modeling with Icarus__ project.
 
 This python app can create a plot of Flux vs Wavelength for 1 or more black bodies of certain temperatures, and calculate their U, B, V, R magnitudes based on alpha Lyr Flux values taken from Bessell et al. (1998) Johnson-Cousins-Glass System.
 
@@ -54,3 +54,8 @@ python BlackBody.py --no-gui -t 4000 -o fig4000.png
 The BlackBody class can calculate the radiation, observed flux and magnitude using the following formulas:
 
 ![alt tag](https://github.com/dinosk/icarus-exercise/blob/master/equation.png)
+
+
+The different magnitudes are calculated using the data for Vega from "Absolute Flux Calibrated Spectrum of Vega" L.Collina, R. Bohlin, F. Castelli
+
+![alt tag](https://github.com/dinosk/icarus-exercise/blob/master/reference_data.png)
