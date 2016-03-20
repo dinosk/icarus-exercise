@@ -5,6 +5,10 @@ import IPython
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+from astropy import units as u
+from astropy.analytic_functions import blackbody_lambda
+
+np.seterr(over='ignore')
 
 class Gui(Tkinter.Tk):
     def __init__(self,parent):
@@ -139,8 +143,9 @@ class Gui(Tkinter.Tk):
         What happens if you press the Plot button.
         """
     	self.show_plot(self.filename_text.get())
-        self.feedback.set("Plot saved in: "+os.getcwd()+"/"+self.filename_text.get())
+        self.feedback.set("Plot saved in: "+os.getcwd()+"/plots/"+self.filename_text.get())
         self.bbs = []
+        self.temps = ""
 
 
     def show_plot(self, output_file=None):
@@ -154,23 +159,21 @@ class Gui(Tkinter.Tk):
         fig.subplots_adjust(**adjustprops)
 
         # Setting the labels for the X and Y axis
-        ax.set_xlabel(r'$Wavelength \, [nm]$', size=15, labelpad=20)
-        ax.set_ylabel(r'$Flux \, [\mathrm{erg\, m^{-2}\, nm^{-1}\, s^{-1}}]$', size=15)
+        ax.set_xlabel(r'$Wavelength \, [\AA]$', size=15, labelpad=20)
+        ax.set_ylabel(r'$Flux \, [\mathrm{erg\, \AA\, cm^{-2}\, s^{-1}\, sr^{-1}}]$', size=15)
 
         ax.minorticks_on()
         ax.grid()
 
         # We will create the plot for wavelengths of 1nm up to 1um
-        wavelength = np.arange(1e-9, 1e-6, 1e-9)
-        # print wavelength
+        wavelength = np.arange(10, 10000, 10)
 
-        #legend_lines = []
-        for bb in self.bbs:
-            #legend_lines.append( ax.plot(wavelength*10**9, bb.radiation(wavelength), color="red", linewidth=3, linestyle="-", label=bb.T) )
-            ax.plot(wavelength*10**9, bb.radiation(wavelength), color=np.random.rand(3,1), linewidth=3, linestyle="-", label=bb.T)
+        with np.errstate(all='ignore'):
+            for bb in self.bbs:
+                ax.plot(wavelength, blackbody_lambda(wavelength, bb.T).value, color=np.random.rand(3,1), linewidth=3, linestyle="-", label=bb.T)
         plt.legend()
 
-        plt.title('Flux vs Wavelength of BlackBody.BlackBody at %s K' % self.temps, y=1.04)
+        plt.title('Flux vs Wavelength of BlackBody at %s K' % self.temps, y=1.04)
         fig.show()
         if output_file:
             plt.savefig("plots/"+output_file)

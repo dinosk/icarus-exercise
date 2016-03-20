@@ -1,5 +1,6 @@
 from astropy.constants import h, c, k_B, sigma_sb, R_sun
 from astropy import units as u
+from astropy.analytic_functions import blackbody_lambda
 from scipy.integrate import quad
 import numpy as np
 import matplotlib.pyplot as plt
@@ -68,24 +69,31 @@ class BlackBody(object):
         for section in Config.sections():
             self.ref_data[section] = self.readReferenceData(section)
 
-    def radiation(self, wavelength, T=None):
-        """
-        Calculates the black body radiation for a given wavelength or wavelength range.
-        """
-        if T:
-            if not isinstance(T, u.Quantity):
-                T = u.Quantity(T, u.K)
-            self.T = T
-        numerator = ((2 * np.pi * h * c**2) / (wavelength * u.m)**5)
-        exponent = (h.value * c.value) / (wavelength * k_B.value * self.T.value)
-        denominator = np.exp(exponent) - 1
-        return (numerator / denominator).value
+
+    # def radiation(self, wavelength, T=None):
+    #     """
+    #     Calculates the black body radiation for a given wavelength or wavelength range.
+    #     """
+    #     if T:
+    #         if not isinstance(T, u.Quantity):
+    #             T = u.Quantity(T, u.K)
+    #         self.T = T
+    #     numerator = ((2 * np.pi * h * c**2) / (wavelength * u.m)**5)
+    #     exponent = (h.value * c.value) / (wavelength * k_B.value * self.T.value)
+    #     denominator = np.exp(exponent) - 1
+    #     return (numerator / denominator).value
+
 
     def obs_flux(self, wavelength, T=None):
         """
         Calculates the observed flux for a certain wavelength or wavelength range.
         """
-        return self.radiation(wavelength, T) * (R_sun / (10 * u.parsec).to(u.m))**2
+        if T:
+            if not isinstance(T, u.Quantity):
+                T = u.Quantity(T, u.K)
+            self.T = T
+        return blackbody_lambda(wavelength, self.T) * (R_sun / (10 * u.parsec).to(u.m))**2
+
 
     def magnitude(self, band):
         """
@@ -94,12 +102,10 @@ class BlackBody(object):
 
         Integrates with the quad method from scipy.
         """
-        # m_x = -2.5 * np.log10( quad(self.obs_flux,
-		# 						 	self.ref_data["lambda_eff"][band] - self.ref_data["delta_lambda"][band]/2,
-		#			 			    self.ref_data["lambda_eff"][band] + self.ref_data["delta_lambda"][band]/2)[0]
-		#							/ self.ref_data["f_lambda_0"][band] )
-        m_x = -2.5 * np.log10( self.obs_flux(self.ref_data["lambda_eff"][band]) / self.ref_data["f_lambda_0"][band] )
+        m_x = -2.5 * np.log10( self.obs_flux(self.ref_data["lambda_eff"][band]).value /
+                               self.ref_data["f_lambda_0"][band] )
         return m_x
+
 
     def show_plot(self, output_file=None):
         """
@@ -113,18 +119,18 @@ class BlackBody(object):
         adjustprops = dict(left=0.19,bottom=0.15,right=0.92,top=0.9,wspace=0.,hspace=0.2)
         fig.subplots_adjust(**adjustprops)
 
-        ax.set_xlabel(r'$Wavelength \, [nm]$', size=15, labelpad=20)
-        ax.set_ylabel(r'$Flux \, [\mathrm{erg\, m^{-2}\, nm^{-1}\, s^{-1}}]$', size=15)
+        ax.set_xlabel(r'$Wavelength \, [\AA]$', size=15, labelpad=20)
+        ax.set_ylabel(r'$Flux \, [\mathrm{erg\, \AA, cm^{-2}\, s^{-1}, sr^{-1}}]$', size=15)
 
         ax.minorticks_on()
         ax.grid()
 
         # We will create the plot for wavelengths of 1nm up to 1um
-        wavelength = np.arange(1e-9, 1e-6, 1e-9)
+        wavelength = np.arange(10, 10000, 10)
 
-        spectrum = self.radiation(wavelength)
+        spectrum = blackbody_lambda(wavelength, self.T).value
 
-        ax.plot(wavelength*10**9, spectrum, color="red", linewidth=3, linestyle="-")
+        ax.plot(wavelength, spectrum, color="red", linewidth=3, linestyle="-")
         plt.title('Flux vs Wavelength of BlackBody at %d K' % self.T.value)
         fig.show()
         if output_file:
